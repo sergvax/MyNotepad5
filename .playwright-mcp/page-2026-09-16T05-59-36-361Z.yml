@@ -1,0 +1,24 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]: 📲
+    - generic [ref=e4]:
+      - generic [ref=e5]: Установить приложение
+      - paragraph [ref=e6]: Нажмите ⬆️ «Поделиться» → «На экран „Домой"»
+    - button "Закрыть" [ref=e7] [cursor=pointer]: ✕
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - generic "Открыть файл" [ref=e10] [cursor=pointer]:
+        - generic [ref=e11]: 📂
+      - button "💾" [ref=e12] [cursor=pointer]:
+        - generic [ref=e13]: 💾
+      - button "📄" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: 📄
+      - button "🔍" [ref=e16] [cursor=pointer]:
+        - generic [ref=e17]: 🔍
+      - button "⚙️" [ref=e18] [cursor=pointer]:
+        - generic [ref=e19]: ⚙️
+      - generic [ref=e20]: 📄 не выбран
+      - generic [ref=e21]:
+        - generic "Текущая кодировка" [ref=e22]: 📌 UTF-8
+        - generic [ref=e23]: Стр 1, Кол 1
+    - textbox "Откройте файл или начните вводить текст..." [ref=e26]

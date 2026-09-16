@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Лёгкий Блокнот · Pro</title>
+
+    <!-- PWA / iOS -->
+    <meta name="theme-color" content="#f0f2f5">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Блокнот">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+    <link rel="shortcut icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background: #f0f2f5;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            display: flex;
+            flex-direction: column;
+            padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .app {
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex: 1;
+            border: 1px solid #d0d7de;
+        }
+
+        /* ===== ВЕРХНЯЯ ПАНЕЛЬ (sticky) ===== */
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #ffffff;
+            border-bottom: 1px solid #e1e4e8;
+            padding: 8px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .btn {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 30px;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #24292f;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            white-space: nowrap;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .btn i { font-style: normal; font-size: 1.2em; line-height: 1; }
+        .btn:hover {
+            background: #eaeef2;
+            border-color: #b0b8c0;
+        }
+
+        .btn-primary {
+            background: #1f883d;
+            border-color: #1f883d;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1a7431;
+            border-color: #1a7431;
+        }
+
+        .filename-chip {
+            background: #e9ecef;
+            border-radius: 30px;
+            padding: 4px 14px;
+            font-size: 0.85rem;
+            border: 1px solid #d0d7de;
+            color: #0969da;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #57606a;
+            margin-left: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Панель поиска (появляется под sticky) */
+        .search-panel {
+            background: #f6f8fa;
+            padding: 10px 16px;
+            border-bottom: 1px solid #e1e4e8;
+            display: none;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .search-panel.show {
+            display: flex;
+        }
+
+        .search-input {
+            padding: 8px 14px;
+            border-radius: 40px;
+            border: 1px solid #d0d7de;
+            background: white;
+            font-size: 0.9rem;
+            min-width: 180px;
+            flex: 1 1 180px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            border: 1px solid #d0d7de;
+        }
+
+        /* Панель кодировок */
+        .encoding-panel {
+            background: #f6f8fa;
+            padding: 8px 16px;
+            border-bottom: 1px solid #e1e4e8;
+            display: none;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .encoding-panel.show {
+            display: flex;
+        }
+
+        .encoding-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 4px 10px;
+            border-radius: 40px;
+            border: 1px solid #d0d7de;
+        }
+        select {
+            padding: 6px 8px;
+            border-radius: 30px;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        /* Контейнер редактора — без номеров строк */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            background: #ffffff;
+            overflow: auto;
+            min-height: 300px;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            display: flex;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 16px 18px;
+            background: #ffffff;
+            color: #1f2328;
+            tab-size: 4;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .separator {
+            width: 1px;
+            height: 28px;
+            background: #d0d7de;
+            margin: 0 2px;
+        }
+
+        /* мобильная адаптация */
+        @media (max-width: 640px) {
+            .btn span:not(.icon-only) { display: none; }
+            .btn i { font-size: 1.4em; }
+            .btn { padding: 10px 13px; }
+            .filename-chip { max-width: 120px; }
+            .status-info { margin-left: 0; }
+            .top-bar { padding: 6px 8px; }
+            .search-panel { padding: 8px; }
+            .search-input { font-size: 16px; }
+            select { font-size: 16px; }
+            textarea { font-size: 16px; }
+        }
+
+        /* ===== PWA / iOS (iPhone 17 Pro Max safe areas) ===== */
+        @media (hover: hover) and (pointer: fine) {
+            body { padding: 8px; }
+        }
+
+        .btn, .checkbox-label, .encoding-selector, .search-input {
+            -webkit-user-select: none;
+            user-select: none;
+            min-height: 40px;
+        }
+
+        /* Подсказка установки приложения */
+        .install-hint {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #1d63ff, #5e5ce6);
+            color: #fff;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            box-shadow: 0 6px 18px rgba(29, 99, 255, 0.35);
+        }
+        .install-hint b { display: block; font-size: 0.9rem; }
+        .install-hint p { margin: 0; opacity: 0.92; }
+        .install-hint .share-mark { font-size: 1.1rem; }
+        .install-hint button {
+            margin-left: auto;
+            border: none;
+            background: rgba(255,255,255,0.22);
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            font-size: 15px;
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+
+        /* Тёмная тема */
+        @media (prefers-color-scheme: dark) {
+            body { background: #000; }
+            .app { background: #1c1c1e; border-color: #38383a; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+            .top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; box-shadow: none; }
+            .btn { background: #2c2c2e; border-color: #48484a; color: #f2f2f7; }
+            .btn:hover { background: #3a3a3c; border-color: #58585a; }
+            .btn-primary { background: #248a3d; border-color: #248a3d; color: #fff; }
+            .btn-primary:hover { background: #2ea74e; border-color: #2ea74e; }
+            .filename-chip { background: #2c2c2e; border-color: #48484a; color: #0a84ff; }
+            .status-info { color: #98989f; }
+            .search-panel { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+            .search-input { background: #2c2c2e; border-color: #48484a; color: #f2f2f7; }
+            .search-input::placeholder { color: #8e8e93; }
+            .checkbox-label { background: #2c2c2e; border-color: #48484a; color: #f2f2f7; }
+            .encoding-panel { background: #1c1c1e; border-bottom-color: #2c2c2e; }
+            .encoding-selector { background: #2c2c2e; border-color: #48484a; }
+            select { color: #f2f2f7; }
+            .editor-container { background: #1c1c1e; }
+            textarea { background: #1c1c1e; color: #f2f2f7; caret-color: #0a84ff; }
+            .separator { background: #48484a; }
+            .install-hint { box-shadow: 0 6px 18px rgba(0,0,0,0.55); }
+        }
+    </style>
+</head>
+<body>
+<div class="install-hint" id="installHint" hidden>
+    <span class="share-mark">📲</span>
+    <div>
+        <b>Установить приложение</b>
+        <p>Нажмите ⬆️ «Поделиться» → «На экран „Домой"»</p>
+    </div>
+    <button type="button" id="installHintClose" aria-label="Закрыть">✕</button>
+</div>
+<div class="app">
+    <!-- ЗАКРЕПЛЁННАЯ ВЕРХНЯЯ ПАНЕЛЬ -->
+    <div class="top-bar">
+        <label class="btn" for="fileInput" title="Открыть файл">
+            <i>📂</i> <span>Открыть</span>
+        </label>
+        <input type="file" id="fileInput" accept="*/*" class="hidden-input">
+
+        <button class="btn btn-primary" id="saveBtn" title="Сохранить (Ctrl+S)">
+            <i>💾</i> <span>Сохранить</span>
+        </button>
+
+        <button class="btn" id="newFileBtn" title="Новый файл">
+            <i>📄</i> <span>Новый</span>
+        </button>
+
+        <button class="btn" id="toggleSearchBtn" title="Поиск и замена (Ctrl+F)">
+            <i>🔍</i> <span>Поиск</span>
+        </button>
+
+        <button class="btn" id="toggleEncodingBtn" title="Кодировки">
+            <i>⚙️</i> <span>Кодировка</span>
+        </button>
+
+        <span id="currentFileName" class="filename-chip" title="">📄 не выбран</span>
+
+        <div class="status-info">
+            <span id="encodingStatus" title="Текущая кодировка">📌 UTF-8</span>
+            <span id="cursorPosition">Стр 1, Кол 1</span>
+        </div>
+        
+        <div style="flex:1;"></div>
+    </div>
+
+    <!-- Панель поиска -->
+    <div class="search-panel" id="searchPanel">
+        <input type="text" id="searchInput" class="search-input" placeholder="Найти..." autocomplete="off">
+        <input type="text" id="replaceInput" class="search-input" placeholder="Заменить на...">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button class="btn" id="findBtn" style="padding:6px 14px;"><i>🔍</i> Найти далее</button>
+            <button class="btn" id="replaceBtn" style="padding:6px 14px;"><i>↪️</i> Заменить</button>
+            <button class="btn" id="replaceAllBtn" style="padding:6px 14px;"><i>🔄</i> Заменить всё</button>
+            <label class="checkbox-label">
+                <input type="checkbox" id="caseSensitiveCheck"> <span>С уч. регистра</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Панель кодировок -->
+    <div class="encoding-panel" id="encodingPanel">
+        <div class="encoding-selector">
+            <label>📖 Читать:</label>
+            <select id="encodingSelect">
+                <option value="auto">Авто</option>
+                <option value="utf-8">UTF-8</option>
+                <option value="windows-1251">Windows-1251</option>
+                <option value="koi8-r">KOI8-R</option>
+                <option value="iso-8859-5">ISO-8859-5</option>
+                <option value="maccyrillic">MacCyrillic</option>
+                <option value="utf-16le">UTF-16 LE</option>
+                <option value="utf-16be">UTF-16 BE</option>
+            </select>
+        </div>
+        <div class="encoding-selector">
+            <label>💾 Сохранить:</label>
+            <select id="saveEncodingSelect">
+                <option value="utf-8" selected>UTF-8</option>
+                <option value="windows-1251">Windows-1251</option>
+                <option value="koi8-r">KOI8-R</option>
+                <option value="iso-8859-5">ISO-8859-5</option>
+                <option value="maccyrillic">MacCyrillic</option>
+                <option value="utf-16le">UTF-16 LE</option>
+                <option value="utf-16be">UTF-16 BE</option>
+            </select>
+        </div>
+        <span style="margin-left:auto; font-size:0.85rem; color:#57606a;" id="encodingHint"></span>
+    </div>
+
+    <!-- Редактор (без номеров строк) -->
+    <div class="editor-container">
+        <div class="editor-wrapper">
+            <textarea id="editor" placeholder="Откройте файл или начните вводить текст..." spellcheck="false"></textarea>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ----- элементы DOM -----
+        const fileInput = document.getElementById('fileInput');
+        const editor = document.getElementById('editor');
+        const encodingSelect = document.getElementById('encodingSelect');
+        const saveEncodingSelect = document.getElementById('saveEncodingSelect');
+        const saveBtn = document.getElementById('saveBtn');
+        const newFileBtn = document.getElementById('newFileBtn');
+        const currentFileNameSpan = document.getElementById('currentFileName');
+        const encodingStatus = document.getElementById('encodingStatus');
+        const encodingHint = document.getElementById('encodingHint');
+        const cursorPositionSpan = document.getElementById('cursorPosition');
+
+        const searchPanel = document.getElementById('searchPanel');
+        const encodingPanel = document.getElementById('encodingPanel');
+        const toggleSearchBtn = document.getElementById('toggleSearchBtn');
+        const toggleEncodingBtn = document.getElementById('toggleEncodingBtn');
+
+        const searchInput = document.getElementById('searchInput');
+        const replaceInput = document.getElementById('replaceInput');
+        const findBtn = document.getElementById('findBtn');
+        const replaceBtn = document.getElementById('replaceBtn');
+        const replaceAllBtn = document.getElementById('replaceAllBtn');
+        const caseSensitiveCheck = document.getElementById('caseSensitiveCheck');
+
+        // ----- состояние -----
+        let currentFileBuffer = null;
+        let currentFileName = '';
+        let originalEncodingUsed = 'utf-8';
+
+        // ----- кодировки (вспомогательные) -----
+        function decodeBufferWithEncoding(buffer, encoding) {
+            try { return new TextDecoder(encoding.toLowerCase()).decode(buffer); } 
+            catch { return null; }
+        }
+
+        function autoDetectEncoding(buffer) {
+            const arr = new Uint8Array(buffer);
+            if (arr.length >= 3 && arr[0] === 0xEF && arr[1] === 0xBB && arr[2] === 0xBF) return 'utf-8';
+            if (arr.length >= 2 && arr[0] === 0xFF && arr[1] === 0xFE) return 'utf-16le';
+            if (arr.length >= 2 && arr[0] === 0xFE && arr[1] === 0xFF) return 'utf-16be';
+            try { new TextDecoder('utf-8', { fatal: true }).decode(buffer); return 'utf-8'; } catch {}
+            const candidates = ['windows-1251', 'koi8-r', 'iso-8859-5', 'maccyrillic'];
+            for (let enc of candidates) {
+                try {
+                    const text = new TextDecoder(enc, { fatal: true }).decode(buffer);
+                    if (/[а-яА-ЯёЁ]/.test(text)) return enc;
+                } catch {}
+            }
+            return 'windows-1251';
+        }
+
+        function loadFileWithEncoding(buffer, encoding) {
+            let usedEncoding = encoding === 'auto' ? autoDetectEncoding(buffer) : encoding;
+            let text = decodeBufferWithEncoding(buffer, usedEncoding);
+            if (text === null) {
+                usedEncoding = 'utf-8';
+                text = decodeBufferWithEncoding(buffer, 'utf-8') || '';
+            }
+            editor.value = text;
+            originalEncodingUsed = usedEncoding;
+            encodingStatus.textContent = `📌 ${usedEncoding.toUpperCase()}`;
+            encodingHint.textContent = `📖 чтение: ${usedEncoding}`;
+            if (encodingSelect.value !== usedEncoding && encodingSelect.value !== 'auto') {
+                if ([...encodingSelect.options].some(opt => opt.value === usedEncoding))
+                    encodingSelect.value = usedEncoding;
+            }
+        }
+
+        function handleFile(file) {
+            if (!file) return;
+            currentFileName = file.name;
+            currentFileNameSpan.textContent = `📄 ${file.name.substring(0,25)}${file.name.length>25?'…':''}`;
+            currentFileNameSpan.title = file.name;
+            const reader = new FileReader();
+            reader.onload = e => {
+                currentFileBuffer = e.target.result;
+                loadFileWithEncoding(currentFileBuffer, encodingSelect.value);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        fileInput.addEventListener('change', e => {
+            if (fileInput.files[0]) handleFile(fileInput.files[0]);
+            fileInput.value = '';
+        });
+
+        encodingSelect.addEventListener('change', () => {
+            if (currentFileBuffer) loadFileWithEncoding(currentFileBuffer, encodingSelect.value);
+        });
+
+        // ----- НОВЫЙ ФАЙЛ (сброс) -----
+        function newFile() {
+            editor.value = '';
+            currentFileBuffer = null;
+            currentFileName = '';
+            currentFileNameSpan.textContent = '📄 не выбран';
+            currentFileNameSpan.title = '';
+            encodingStatus.textContent = '📌 UTF-8';
+            encodingHint.textContent = '📖 готов';
+            originalEncodingUsed = 'utf-8';
+            encodingSelect.value = 'auto';
+            saveEncodingSelect.value = 'utf-8';
+            try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+            updateCursorPos();
+        }
+
+        newFileBtn.addEventListener('click', newFile);
+
+        // ----- сохранение -----
+        function encodeTextToBuffer(text, encoding) {
+            const enc = encoding.toLowerCase();
+            if (enc === 'utf-8') return new TextEncoder().encode(text);
+            if (enc === 'utf-16le') {
+                const buf = new ArrayBuffer(text.length * 2);
+                const view = new Uint16Array(buf);
+                for (let i=0; i<text.length; i++) view[i] = text.charCodeAt(i);
+                return new Uint8Array(buf);
+            }
+            if (enc === 'utf-16be') {
+                const buf = new ArrayBuffer(text.length * 2);
+                const view = new Uint8Array(buf);
+                for (let i=0; i<text.length; i++) {
+                    const code = text.charCodeAt(i);
+                    view[i*2] = (code>>8)&0xFF;
+                    view[i*2+1] = code&0xFF;
+                }
+                return view;
+            }
+            if (enc === 'windows-1251') return encodeWindows1251(text);
+            if (enc === 'koi8-r') return encodeKoi8r(text);
+            if (enc === 'iso-8859-5') return encodeIso8859_5(text);
+            if (enc === 'maccyrillic') return encodeMacCyrillic(text);
+            return new TextEncoder().encode(text);
+        }
+
+        function encodeWindows1251(str){ const bytes=[]; for(let ch of str){const cp=ch.charCodeAt(0); if(cp<0x80)bytes.push(cp); else if(cp===0x0401)bytes.push(0xA8); else if(cp===0x0451)bytes.push(0xB8); else if(cp>=0x0410&&cp<=0x044F){if(cp<=0x041F)bytes.push(cp-0x0410+0xC0);else if(cp<=0x042F)bytes.push(cp-0x0420+0xD0);else if(cp<=0x043F)bytes.push(cp-0x0430+0xE0);else bytes.push(cp-0x0440+0xF0);}else bytes.push(0x3F);} return new Uint8Array(bytes); }
+        function encodeKoi8r(str){ const map={'Ё':0xB3,'ё':0xA3,'А':0xE1,'Б':0xE2,'В':0xF7,'Г':0xE7,'Д':0xE4,'Е':0xE5,'Ж':0xF6,'З':0xFA,'И':0xE9,'Й':0xEA,'К':0xEB,'Л':0xEC,'М':0xED,'Н':0xEE,'О':0xEF,'П':0xF0,'Р':0xF2,'С':0xF3,'Т':0xF4,'У':0xF5,'Ф':0xE6,'Х':0xE8,'Ц':0xE3,'Ч':0xFE,'Ш':0xFB,'Щ':0xFD,'Ъ':0xFF,'Ы':0xF9,'Ь':0xF8,'Э':0xFC,'Ю':0xE0,'Я':0xF1,'а':0xC1,'б':0xC2,'в':0xD7,'г':0xC7,'д':0xC4,'е':0xC5,'ж':0xD6,'з':0xDA,'и':0xC9,'й':0xCA,'к':0xCB,'л':0xCC,'м':0xCD,'н':0xCE,'о':0xCF,'п':0xD0,'р':0xD2,'с':0xD3,'т':0xD4,'у':0xD5,'ф':0xC6,'х':0xC8,'ц':0xC3,'ч':0xDE,'ш':0xDB,'щ':0xDD,'ъ':0xDF,'ы':0xD9,'ь':0xD8,'э':0xDC,'ю':0xC0,'я':0xD1}; const bytes=[]; for(let ch of str) bytes.push(map[ch]??(ch.charCodeAt(0)<0x80?ch.charCodeAt(0):0x3F)); return new Uint8Array(bytes); }
+        function encodeIso8859_5(str){ const bytes=[]; for(let ch of str){const cp=ch.charCodeAt(0); if(cp<0x80)bytes.push(cp); else if(cp===0x0401)bytes.push(0xA1); else if(cp===0x0451)bytes.push(0xF1); else if(cp>=0x0410&&cp<=0x044F)bytes.push(cp-0x0410+0xB0); else bytes.push(0x3F);} return new Uint8Array(bytes); }
+        function encodeMacCyrillic(str){ const map={'А':0x80,'Б':0x81,'В':0x82,'Г':0x83,'Д':0x84,'Е':0x85,'Ж':0x86,'З':0x87,'И':0x88,'Й':0x89,'К':0x8A,'Л':0x8B,'М':0x8C,'Н':0x8D,'О':0x8E,'П':0x8F,'Р':0x90,'С':0x91,'Т':0x92,'У':0x93,'Ф':0x94,'Х':0x95,'Ц':0x96,'Ч':0x97,'Ш':0x98,'Щ':0x99,'Ъ':0x9A,'Ы':0x9B,'Ь':0x9C,'Э':0x9D,'Ю':0x9E,'Я':0x9F,'а':0xE0,'б':0xE1,'в':0xE2,'г':0xE3,'д':0xE4,'е':0xE5,'ж':0xE6,'з':0xE7,'и':0xE8,'й':0xE9,'к':0xEA,'л':0xEB,'м':0xEC,'н':0xED,'о':0xEE,'п':0xEF,'р':0xF0,'с':0xF1,'т':0xF2,'у':0xF3,'ф':0xF4,'х':0xF5,'ц':0xF6,'ч':0xF7,'ш':0xF8,'щ':0xF9,'ъ':0xFA,'ы':0xFB,'ь':0xFC,'э':0xFD,'ю':0xFE,'я':0xFF,'Ё':0xDD,'ё':0xDE}; const bytes=[]; for(let ch of str) bytes.push(map[ch]??(ch.charCodeAt(0)<0x80?ch.charCodeAt(0):0x3F)); return new Uint8Array(bytes); }
+
+        function doSave() {
+            const text = editor.value;
+            const encoding = saveEncodingSelect.value;
+            const bytes = encodeTextToBuffer(text, encoding);
+            let suggested = currentFileName || 'документ.txt';
+            const newName = prompt('Имя файла для сохранения:', suggested);
+            if (newName === null) return;
+            const finalName = newName.trim() || 'документ.txt';
+            const blob = new Blob([bytes], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = finalName;
+            a.click();
+            URL.revokeObjectURL(url);
+            encodingStatus.textContent = `📌 ${encoding.toUpperCase()} (сохр.)`;
+        }
+
+        saveBtn.addEventListener('click', doSave);
+
+        // ----- поиск / замена (исправлен) -----
+        function findNext(forward = true) {
+            const searchStr = searchInput.value;
+            if (!searchStr) return false;
+            const content = editor.value;
+            const caseSensitive = caseSensitiveCheck.checked;
+            const searchContent = caseSensitive ? content : content.toLowerCase();
+            const searchFor = caseSensitive ? searchStr : searchStr.toLowerCase();
+            
+            let start = editor.selectionStart;
+            const selected = content.substring(editor.selectionStart, editor.selectionEnd);
+            const matches = caseSensitive ? selected === searchStr : selected.toLowerCase() === searchFor;
+            if (matches) start = editor.selectionEnd;
+            
+            let found = searchContent.indexOf(searchFor, start);
+            if (found === -1 && start > 0) found = searchContent.indexOf(searchFor, 0);
+            if (found !== -1) {
+                editor.focus();
+                editor.setSelectionRange(found, found + searchStr.length);
+                const linesBefore = content.substring(0, found).split('\n').length;
+                editor.scrollTop = (linesBefore-1) * 21;
+                return true;
+            }
+            return false;
+        }
+
+        findBtn.addEventListener('click', () => {
+            if (!findNext(true)) alert('Ничего не найдено');
+        });
+
+        replaceBtn.addEventListener('click', () => {
+            const searchStr = searchInput.value;
+            if (!searchStr) return;
+            const selection = editor.value.substring(editor.selectionStart, editor.selectionEnd);
+            const caseSensitive = caseSensitiveCheck.checked;
+            const match = caseSensitive ? selection === searchStr : selection.toLowerCase() === searchStr.toLowerCase();
+            if (match) {
+                editor.setRangeText(replaceInput.value, editor.selectionStart, editor.selectionEnd, 'end');
+            }
+            findNext(true);
+        });
+
+        replaceAllBtn.addEventListener('click', () => {
+            const searchStr = searchInput.value;
+            if (!searchStr) return;
+            const replaceStr = replaceInput.value;
+            const caseSensitive = caseSensitiveCheck.checked;
+            const flags = caseSensitive ? 'g' : 'gi';
+            const escaped = searchStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escaped, flags);
+            editor.value = editor.value.replace(regex, replaceStr);
+        });
+
+        // ----- позиция курсора -----
+        function updateCursorPos() {
+            const pos = editor.selectionStart;
+            const text = editor.value;
+            const lines = text.substr(0, pos).split('\n');
+            const line = lines.length;
+            const col = lines[lines.length-1].length + 1;
+            cursorPositionSpan.textContent = `Стр ${line}, Кол ${col}`;
+        }
+        editor.addEventListener('click', updateCursorPos);
+        editor.addEventListener('keyup', updateCursorPos);
+        editor.addEventListener('mouseup', updateCursorPos);
+        editor.addEventListener('input', updateCursorPos);
+
+        // ----- управление панелями -----
+        toggleSearchBtn.addEventListener('click', () => {
+            searchPanel.classList.toggle('show');
+            encodingPanel.classList.remove('show');
+        });
+        toggleEncodingBtn.addEventListener('click', () => {
+            encodingPanel.classList.toggle('show');
+            searchPanel.classList.remove('show');
+        });
+
+        // Drag & drop
+        const editorContainer = document.querySelector('.editor-container');
+        editorContainer.addEventListener('dragover', e => e.preventDefault());
+        editorContainer.addEventListener('drop', e => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file) handleFile(file);
+        });
+
+        // Горячие клавиши
+        document.addEventListener('keydown', e => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                doSave();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                searchPanel.classList.add('show');
+                encodingPanel.classList.remove('show');
+                searchInput.focus();
+            }
+        });
+
+        // ----- локальный черновик (автосохранение) -----
+        const DRAFT_KEY = 'notepad5-draft-v1';
+        let draftTimer = null;
+        function saveDraft() {
+            clearTimeout(draftTimer);
+            draftTimer = setTimeout(() => {
+                try {
+                    if (editor.value) localStorage.setItem(DRAFT_KEY, editor.value);
+                    else localStorage.removeItem(DRAFT_KEY);
+                } catch (e) {}
+            }, 400);
+        }
+        function restoreDraft() {
+            try {
+                const draft = localStorage.getItem(DRAFT_KEY);
+                if (draft) {
+                    editor.value = draft;
+                    currentFileNameSpan.textContent = '💾 черновик';
+                    currentFileNameSpan.title = 'Локальный черновик (автосохранение)';
+                }
+            } catch (e) {}
+        }
+        editor.addEventListener('input', saveDraft);
+
+        // ----- подсказка установки (iOS) -----
+        const installHint = document.getElementById('installHint');
+        const installHintClose = document.getElementById('installHintClose');
+        const HINT_DISMISS_KEY = 'notepad5-install-dismissed';
+        (function maybeShowInstallHint() {
+            const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+            const standalone = window.navigator.standalone === true;
+            let dismissed = false;
+            try { dismissed = localStorage.getItem(HINT_DISMISS_KEY) === '1'; } catch (e) {}
+            if (isIOS && !standalone && !dismissed && !window.matchMedia('(display-mode: standalone)').matches) {
+                installHint.hidden = false;
+            }
+        })();
+        installHintClose.addEventListener('click', () => {
+            installHint.hidden = true;
+            try { localStorage.setItem(HINT_DISMISS_KEY, '1'); } catch (e) {}
+        });
+
+        // ----- регистрация service worker (оффлайн) -----
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+
+        // Инициализация
+        encodingStatus.textContent = '📌 UTF-8';
+        encodingHint.textContent = '📖 готов';
+        restoreDraft();
+        updateCursorPos();
+    })();
+</script>
+</body>
+</html>
