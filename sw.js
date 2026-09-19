@@ -1,14 +1,14 @@
 'use strict';
 
-const VERSION = 'notepad5-v1';
+const VERSION = 'notepad5-v2';
 const ASSETS = [
-  './',
-  './MyNotepad5.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png',
-  './icons/maskable-512.png'
+  '/',
+  '/MyNotepad5.html',
+  '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/maskable-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -49,7 +49,7 @@ self.addEventListener('fetch', (event) => {
         .catch(() =>
           caches
             .match(request)
-            .then((cached) => cached || caches.match('./MyNotepad5.html'))
+            .then((cached) => cached || caches.match('/MyNotepad5.html'))
         )
     );
     return;
