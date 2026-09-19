@@ -1,0 +1,5 @@
+.cert/
+.git/
+.playwright-mcp/
+serve_https.py
+README*.md

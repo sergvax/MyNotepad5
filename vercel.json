@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/", "destination": "/MyNotepad5.html" }]
+}
