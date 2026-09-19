@@ -256,6 +256,10 @@
         }
 
         /* Подсказка установки приложения */
+        .install-hint[hidden],
+        .install-hint[style*="display: none"] {
+            display: none !important;
+        }
         .install-hint {
             position: sticky;
             top: 0;
@@ -313,13 +317,13 @@
     </style>
 </head>
 <body>
-<div class="install-hint" id="installHint" hidden>
+<div class="install-hint" id="pwa-banner" hidden>
     <span class="share-mark">📲</span>
     <div>
         <b>Установить приложение</b>
         <p>Нажмите ⬆️ «Поделиться» → «На экран „Домой"»</p>
     </div>
-    <button type="button" id="installHintClose" aria-label="Закрыть">✕</button>
+    <button type="button" id="close-banner-btn" aria-label="Закрыть">✕</button>
 </div>
 <div class="app">
     <!-- ЗАКРЕПЛЁННАЯ ВЕРХНЯЯ ПАНЕЛЬ -->
@@ -696,22 +700,28 @@
         editor.addEventListener('input', saveDraft);
 
         // ----- подсказка установки (iOS) -----
-        const installHint = document.getElementById('installHint');
-        const installHintClose = document.getElementById('installHintClose');
-        const HINT_DISMISS_KEY = 'notepad5-install-dismissed';
-        (function maybeShowInstallHint() {
+        const pwaBanner = document.getElementById('pwa-banner');
+        const closeBannerBtn = document.getElementById('close-banner-btn');
+        const BANNER_CLOSED_KEY = 'pwaBannerClosed';
+
+        function applyBannerVisibility() {
             const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
             const standalone = window.navigator.standalone === true;
-            let dismissed = false;
-            try { dismissed = localStorage.getItem(HINT_DISMISS_KEY) === '1'; } catch (e) {}
-            if (isIOS && !standalone && !dismissed && !window.matchMedia('(display-mode: standalone)').matches) {
-                installHint.hidden = false;
-            }
-        })();
-        installHintClose.addEventListener('click', () => {
-            installHint.hidden = true;
-            try { localStorage.setItem(HINT_DISMISS_KEY, '1'); } catch (e) {}
+            const inStandalone = window.matchMedia('(display-mode: standalone)').matches;
+            let closed = false;
+            try { closed = localStorage.getItem(BANNER_CLOSED_KEY) === 'true'; } catch (e) {}
+            const shouldShow = isIOS && !standalone && !inStandalone && !closed;
+            pwaBanner.hidden = !shouldShow;
+            pwaBanner.style.display = shouldShow ? 'flex' : 'none';
+        }
+
+        closeBannerBtn.addEventListener('click', function () {
+            pwaBanner.hidden = true;
+            pwaBanner.style.display = 'none';
+            try { localStorage.setItem(BANNER_CLOSED_KEY, 'true'); } catch (e) {}
         });
+
+        applyBannerVisibility();
 
         // ----- регистрация service worker (оффлайн) -----
         if ('serviceWorker' in navigator) {
