@@ -3,7 +3,7 @@
   "short_name": "Блокнот",
   "description": "Офлайн-блокнот с автосохранением, поддержкой кодировок и функции поиска/замены.",
   "id": "./",
-  "start_url": "./MyNotepad5.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

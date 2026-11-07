@@ -1,15 +1,20 @@
 'use strict';
 
-const VERSION = 'notepad5-v2';
+const VERSION = 'notepad5-v3';
+
+// Scope позволяет работать и в корне домена, и в подпапке (GitHub Pages).
+const SCOPE = self.registration.scope;
+const asset = (path) => new URL(path, SCOPE).href;
+
 const ASSETS = [
-  '/',
-  '/MyNotepad5.html',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/apple-touch-icon.png',
-  '/icons/maskable-512.png'
-];
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/apple-touch-icon.png',
+  './icons/maskable-512.png'
+].map(asset);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -49,7 +54,7 @@ self.addEventListener('fetch', (event) => {
         .catch(() =>
           caches
             .match(request)
-            .then((cached) => cached || caches.match('/MyNotepad5.html'))
+            .then((cached) => cached || caches.match(asset('./index.html')))
         )
     );
     return;
