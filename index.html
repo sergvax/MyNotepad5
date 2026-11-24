@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Лёгкий Блокнот · Pro</title>
+    <title>Лёгкий Блокнот Pro Max</title>
 
     <!-- PWA / iOS -->
-    <meta name="theme-color" content="#f0f2f5">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">
+    <meta name="theme-color" content="#e9ecf1">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d0f12">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,363 +20,340 @@
     <link rel="shortcut icon" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <style>
-        * {
-            box-sizing: border-box;
+        :root {
+            color-scheme: light dark;
+            --bg: #e9ecf1;
+            --sheet: #ffffff;
+            --tint: #f2f4f7;
+            --line: rgba(20, 28, 45, .10);
+            --ink: #171b25;
+            --muted: #697184;
+            --accent: #0e7c72;
+            --accent-ink: #ffffff;
+            --accent-soft: rgba(14, 124, 114, .13);
+            --lift: 0 1px 2px rgba(20,28,45,.05), 0 12px 32px -8px rgba(20,28,45,.14);
+            --rule: rgba(20, 28, 45, .065);
+            --margin: rgba(14, 124, 114, .38);
+            --change: #d9a400;
+            --change-ink: #8a6500;
+            --change-bg: rgba(217, 164, 0, .11);
+            --del: #e5484d;
+            --gutter: clamp(26px, 5vw, 64px);
+            --pad-top: 22px;
+            --serif: "New York", ui-serif, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+            --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable", "Segoe UI", Inter, Roboto, system-ui, sans-serif;
+            --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0d0f12;
+                --sheet: #16191e;
+                --tint: #1e2228;
+                --line: rgba(255, 255, 255, .09);
+                --ink: #e8eaef;
+                --muted: #8b93a3;
+                --accent: #4fd1c0;
+                --accent-ink: #06201c;
+                --accent-soft: rgba(79, 209, 192, .15);
+                --lift: 0 1px 2px rgba(0,0,0,.4), 0 16px 40px -8px rgba(0,0,0,.6);
+                --rule: rgba(255, 255, 255, .055);
+                --margin: rgba(79, 209, 192, .4);
+                --change: #f2c14e;
+                --change-ink: #f2c14e;
+                --change-bg: rgba(242, 193, 78, .10);
+                --del: #ff7a7f;
+            }
         }
 
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        html, body { height: 100%; }
         body {
             margin: 0;
-            min-height: 100vh;
-            min-height: 100dvh;
-            background: #f0f2f5;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             display: flex;
             flex-direction: column;
-            padding: calc(8px + env(safe-area-inset-top)) calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));
+            gap: 10px;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--ui);
+            font-size: 15px;
+            padding: calc(10px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
             -webkit-text-size-adjust: 100%;
         }
 
-        .app {
-            max-width: 1600px;
-            margin: 0 auto;
-            width: 100%;
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            flex: 1;
-            border: 1px solid #d0d7de;
+        .i {
+            width: 20px; height: 20px; flex: none;
+            fill: none; stroke: currentColor;
+            stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
         }
 
-        /* ===== ВЕРХНЯЯ ПАНЕЛЬ (sticky) ===== */
-        .top-bar {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            background: #ffffff;
-            border-bottom: 1px solid #e1e4e8;
-            padding: 8px 12px;
+        /* ---------- Лист ---------- */
+        .app {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
             display: flex;
+            flex-direction: column;
+            background: var(--sheet);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--lift);
+            overflow: hidden;
+        }
+
+        /* ---------- Шапка документа ---------- */
+        .toolbar {
+            display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            gap: 12px 20px; padding: 16px 18px 14px;
+            border-bottom: 1px solid var(--line);
+        }
+        .doc { flex: 1 1 240px; min-width: 0; }
+        .doc-title {
+            display: block;
+            font-family: var(--serif); font-size: 1.35rem; font-weight: 600;
+            letter-spacing: -.012em; line-height: 1.25; color: var(--ink);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .doc-meta {
+            display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px;
+            margin-top: 6px; font-size: .78rem; color: var(--muted);
+            font-variant-numeric: tabular-nums;
+        }
+        #encodingStatus {
+            padding: 2px 9px; border-radius: 999px;
+            background: var(--accent-soft); color: var(--accent); font-weight: 600;
+        }
+        .doc-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .doc-head .doc-title { flex: 0 1 auto; min-width: 0; }
+        .state {
+            flex: none; display: inline-flex; align-items: center; gap: 6px;
+            padding: 3px 10px; border-radius: 999px; font: 600 .74rem var(--ui);
+        }
+        .state.dirty { background: var(--change-bg); color: var(--change-ink); }
+        .state.dirty::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--change); }
+        .state.ok { background: var(--accent-soft); color: var(--accent); }
+        #changeCount { color: var(--change-ink); }
+        .tools { display: flex; align-items: center; gap: 10px; }
+        .group { display: flex; gap: 2px; padding: 3px; background: var(--tint); border-radius: 12px; }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            height: 38px; padding: 0 14px; border: 0; border-radius: 10px;
+            background: transparent; color: var(--muted);
+            font: 500 .88rem var(--ui); white-space: nowrap; cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+        .group .btn { height: 34px; padding: 0 11px; }
+        .btn:hover { background: var(--sheet); color: var(--ink); }
+        .btn[aria-pressed="true"] { background: var(--sheet); color: var(--accent); box-shadow: 0 0 0 1px var(--line); }
+        .btn:focus-visible, .field:focus-visible, select:focus-visible, .chip:focus-within {
+            outline: 2px solid var(--accent); outline-offset: 1px;
+        }
+        .btn-primary { background: var(--accent); color: var(--accent-ink); padding: 0 18px; }
+        .btn-primary:hover { background: var(--accent); color: var(--accent-ink); filter: brightness(1.08); }
+        .btn-primary:active { transform: translateY(1px); }
+
+        /* ---------- Панели поиска и кодировок ---------- */
+        .panel {
+            display: none;
             flex-wrap: wrap;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            padding: 10px 12px;
+            background: var(--tint);
+            border-bottom: 1px solid var(--line);
         }
+        .panel.show { display: flex; animation: drop .16s ease-out; }
+        @keyframes drop { from { opacity: 0; transform: translateY(-4px); } }
 
-        .btn {
-            background: #f6f8fa;
-            border: 1px solid #d0d7de;
-            border-radius: 30px;
-            padding: 8px 14px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #24292f;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.15s;
-            white-space: nowrap;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        .field, select {
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--sheet);
+            color: var(--ink);
+            font: inherit;
+            font-size: .9rem;
         }
+        .field { flex: 1 1 170px; min-width: 0; }
+        .field::placeholder { color: var(--muted); }
+        select { padding-right: 6px; cursor: pointer; }
 
-        .btn i { font-style: normal; font-size: 1.2em; line-height: 1; }
-        .btn:hover {
-            background: #eaeef2;
-            border-color: #b0b8c0;
-        }
+        .panel .btn { background: var(--sheet); border: 1px solid var(--line); color: var(--ink); height: 38px; }
+        .panel .btn:hover { border-color: var(--muted); }
 
-        .btn-primary {
-            background: #1f883d;
-            border-color: #1f883d;
-            color: white;
+        .chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            height: 38px; padding: 0 12px;
+            border: 1px solid var(--line); border-radius: 10px;
+            background: var(--sheet);
+            font-size: .88rem;
         }
-        .btn-primary:hover {
-            background: #1a7431;
-            border-color: #1a7431;
-        }
+        .chip input { accent-color: var(--accent); margin: 0; }
+        .pick { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); }
+        .hint { margin-left: auto; font-size: .82rem; color: var(--muted); }
+        .actions { display: flex; flex-wrap: wrap; gap: 6px; }
 
-        .filename-chip {
-            background: #e9ecef;
-            border-radius: 30px;
-            padding: 4px 14px;
-            font-size: 0.85rem;
-            border: 1px solid #d0d7de;
-            color: #0969da;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            margin-left: auto;
+        /* ---------- Редактор ---------- */
+        .editor-container { flex: 1; min-height: 0; display: flex; }
+        .editor-wrapper { flex: 1; display: flex; min-width: 0; position: relative; }
+        .editor-wrapper::before {
+            content: ""; position: absolute; top: 0; bottom: 0;
+            left: calc(var(--gutter) - 16px); width: 1px;
+            background: var(--margin); pointer-events: none;
         }
+        textarea {
+            width: 100%; height: 100%; border: 0; outline: 0; resize: none;
+            padding: var(--pad-top) var(--gutter);
+            position: relative; z-index: 1;
+            background: transparent;
+            color: var(--ink);
+            font-family: var(--mono); font-size: 14.5px; line-height: 26px;
+            tab-size: 4; caret-color: var(--accent);
+        }
+        .marks { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+        .marks > div { position: relative; }
+        .chg { position: absolute; left: 0; right: 0; background: var(--change-bg); }
+        .chg::before {
+            content: ""; position: absolute; top: 0; bottom: 0;
+            left: calc(var(--gutter) - 24px); width: 3px; border-radius: 2px; background: var(--change);
+        }
+        .delmark { position: absolute; left: calc(var(--gutter) - 24px); width: 10px; height: 2px; border-radius: 1px; background: var(--del); }
+        .mirror {
+            position: absolute; left: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none;
+            padding: var(--pad-top) var(--gutter);
+            font-family: var(--mono); font-size: 14.5px; line-height: 26px; tab-size: 4;
+            white-space: pre-wrap; overflow-wrap: break-word;
+        }
+        .mirror div { min-height: 26px; }
+        textarea::placeholder { color: var(--muted); opacity: .8; }
+        ::selection { background: var(--accent-soft); }
 
-        .status-info {
+        /* ---------- Подсказка установки ---------- */
+        .install-hint {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 0.8rem;
-            color: #57606a;
-            margin-left: 8px;
-            flex-wrap: wrap;
-        }
-
-        /* Панель поиска (появляется под sticky) */
-        .search-panel {
-            background: #f6f8fa;
-            padding: 10px 16px;
-            border-bottom: 1px solid #e1e4e8;
-            display: none;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-        }
-        .search-panel.show {
-            display: flex;
-        }
-
-        .search-input {
-            padding: 8px 14px;
-            border-radius: 40px;
-            border: 1px solid #d0d7de;
-            background: white;
-            font-size: 0.9rem;
-            min-width: 180px;
-            flex: 1 1 180px;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            background: white;
-            padding: 4px 12px;
-            border-radius: 40px;
-            border: 1px solid #d0d7de;
-        }
-
-        /* Панель кодировок */
-        .encoding-panel {
-            background: #f6f8fa;
-            padding: 8px 16px;
-            border-bottom: 1px solid #e1e4e8;
-            display: none;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .encoding-panel.show {
-            display: flex;
-        }
-
-        .encoding-selector {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: white;
-            padding: 4px 10px;
-            border-radius: 40px;
-            border: 1px solid #d0d7de;
-        }
-        select {
-            padding: 6px 8px;
-            border-radius: 30px;
-            border: none;
-            background: transparent;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        /* Контейнер редактора — без номеров строк */
-        .editor-container {
-            flex: 1;
-            display: flex;
-            background: #ffffff;
-            overflow: auto;
-            min-height: 300px;
-        }
-
-        .editor-wrapper {
-            flex: 1;
-            display: flex;
-        }
-
-        textarea {
             width: 100%;
-            height: 100%;
-            border: none;
-            outline: none;
-            resize: none;
-            font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            padding: 16px 18px;
-            background: #ffffff;
-            color: #1f2328;
-            tab-size: 4;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 10px 12px 10px 14px;
+            background: var(--sheet);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--accent);
+            border-radius: 12px;
+            box-shadow: var(--lift);
+            font-size: .85rem;
         }
-
-        .hidden-input {
-            display: none;
-        }
-
-        .separator {
-            width: 1px;
-            height: 28px;
-            background: #d0d7de;
-            margin: 0 2px;
-        }
-
-        /* мобильная адаптация */
-        @media (max-width: 640px) {
-            .btn span:not(.icon-only) { display: none; }
-            .btn i { font-size: 1.4em; }
-            .btn { padding: 10px 13px; }
-            .filename-chip { max-width: 120px; }
-            .status-info { margin-left: 0; }
-            .top-bar { padding: 6px 8px; }
-            .search-panel { padding: 8px; }
-            .search-input { font-size: 16px; }
-            select { font-size: 16px; }
-            textarea { font-size: 16px; }
-        }
-
-        /* ===== PWA / iOS (iPhone 17 Pro Max safe areas) ===== */
-        @media (hover: hover) and (pointer: fine) {
-            body { padding: 8px; }
-        }
-
-        .btn, .checkbox-label, .encoding-selector, .search-input {
-            -webkit-user-select: none;
-            user-select: none;
-            min-height: 40px;
-        }
-
-        /* Подсказка установки приложения */
-        .install-hint[hidden],
-        .install-hint[style*="display: none"] {
-            display: none !important;
-        }
-        .install-hint {
-            position: sticky;
-            top: 0;
-            z-index: 30;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(90deg, #1d63ff, #5e5ce6);
-            color: #fff;
-            border-radius: 14px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
-            box-shadow: 0 6px 18px rgba(29, 99, 255, 0.35);
-        }
-        .install-hint b { display: block; font-size: 0.9rem; }
-        .install-hint p { margin: 0; opacity: 0.92; }
-        .install-hint .share-mark { font-size: 1.1rem; }
+        .install-hint .i { color: var(--accent); }
+        .install-hint b { display: block; font-size: .9rem; }
+        .install-hint p { margin: 2px 0 0; color: var(--muted); }
         .install-hint button {
-            margin-left: auto;
-            border: none;
-            background: rgba(255,255,255,0.22);
-            color: #fff;
-            width: 30px;
-            height: 30px;
-            border-radius: 15px;
-            font-size: 15px;
-            cursor: pointer;
-            flex: 0 0 auto;
+            margin-left: auto; flex: none;
+            display: grid; place-items: center;
+            width: 32px; height: 32px;
+            border: 0; border-radius: 8px;
+            background: var(--tint); color: var(--muted); cursor: pointer;
         }
 
-        /* Тёмная тема */
-        @media (prefers-color-scheme: dark) {
-            body { background: #000; }
-            .app { background: #1c1c1e; border-color: #38383a; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-            .top-bar { background: #1c1c1e; border-bottom-color: #2c2c2e; box-shadow: none; }
-            .btn { background: #2c2c2e; border-color: #48484a; color: #f2f2f7; }
-            .btn:hover { background: #3a3a3c; border-color: #58585a; }
-            .btn-primary { background: #248a3d; border-color: #248a3d; color: #fff; }
-            .btn-primary:hover { background: #2ea74e; border-color: #2ea74e; }
-            .filename-chip { background: #2c2c2e; border-color: #48484a; color: #0a84ff; }
-            .status-info { color: #98989f; }
-            .search-panel { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-            .search-input { background: #2c2c2e; border-color: #48484a; color: #f2f2f7; }
-            .search-input::placeholder { color: #8e8e93; }
-            .checkbox-label { background: #2c2c2e; border-color: #48484a; color: #f2f2f7; }
-            .encoding-panel { background: #1c1c1e; border-bottom-color: #2c2c2e; }
-            .encoding-selector { background: #2c2c2e; border-color: #48484a; }
-            select { color: #f2f2f7; }
-            .editor-container { background: #1c1c1e; }
-            textarea { background: #1c1c1e; color: #f2f2f7; caret-color: #0a84ff; }
-            .separator { background: #48484a; }
-            .install-hint { box-shadow: 0 6px 18px rgba(0,0,0,0.55); }
+        .hidden-input { display: none; }
+
+        /* ---------- Телефон ---------- */
+        @media (max-width: 700px) {
+            :root { --gutter: 30px; --pad-top: 16px; }
+            body { padding: calc(6px + env(safe-area-inset-top)) calc(6px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left)); gap: 6px; }
+            .app { border-radius: 16px; }
+            .toolbar { padding: 14px 14px 12px; }
+            .doc-title { font-size: 1.2rem; }
+            .tools { width: 100%; }
+            .group { flex: 1; justify-content: space-between; }
+            .group .btn { flex: 1; height: 42px; padding: 0; }
+            .btn .label { display: none; }
+            .btn-primary { height: 42px; }
+            .btn-primary .label { display: inline; }
+            .panel .btn { height: 40px; padding: 0 12px; }
+            .panel .btn .label { display: inline; }
+            .field, select, textarea, .mirror { font-size: 16px; }
+            .hint { display: none; }
         }
+        @media (prefers-reduced-motion: reduce) { .panel.show { animation: none; } }
     </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-open" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-new" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15h6"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 20h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+    <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 7V5h14v2M12 5v14M9 19h6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4m0 0L8.5 7.5M12 4l3.5 3.5M6 11H5a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-1"/></symbol>
+</svg>
+
 <div class="install-hint" id="pwa-banner" hidden>
-    <span class="share-mark">📲</span>
+    <svg class="i"><use href="#i-share"/></svg>
     <div>
-        <b>Установить приложение</b>
-        <p>Нажмите ⬆️ «Поделиться» → «На экран „Домой"»</p>
+        <b>Установите приложение</b>
+        <p>Нажмите «Поделиться», затем «На экран „Домой“»</p>
     </div>
-    <button type="button" id="close-banner-btn" aria-label="Закрыть">✕</button>
+    <button type="button" id="close-banner-btn" aria-label="Закрыть"><svg class="i"><use href="#i-x"/></svg></button>
 </div>
+
 <div class="app">
-    <!-- ЗАКРЕПЛЁННАЯ ВЕРХНЯЯ ПАНЕЛЬ -->
-    <div class="top-bar">
-        <label class="btn" for="fileInput" title="Открыть файл">
-            <i>📂</i> <span>Открыть</span>
-        </label>
-        <input type="file" id="fileInput" accept="*/*" class="hidden-input">
-
-        <button class="btn btn-primary" id="saveBtn" title="Сохранить (Ctrl+S)">
-            <i>💾</i> <span>Сохранить</span>
-        </button>
-
-        <button class="btn" id="newFileBtn" title="Новый файл">
-            <i>📄</i> <span>Новый</span>
-        </button>
-
-        <button class="btn" id="toggleSearchBtn" title="Поиск и замена (Ctrl+F)">
-            <i>🔍</i> <span>Поиск</span>
-        </button>
-
-        <button class="btn" id="toggleEncodingBtn" title="Кодировки">
-            <i>⚙️</i> <span>Кодировка</span>
-        </button>
-
-        <span id="currentFileName" class="filename-chip" title="">📄 не выбран</span>
-
-        <div class="status-info">
-            <span id="encodingStatus" title="Текущая кодировка">📌 UTF-8</span>
-            <span id="cursorPosition">Стр 1, Кол 1</span>
+    <div class="toolbar">
+        <div class="doc">
+            <div class="doc-head">
+                <span id="currentFileName" class="doc-title" title="">Без названия</span>
+                <span id="dirtyState" class="state" hidden></span>
+            </div>
+            <div class="doc-meta">
+                <span id="encodingStatus" title="Текущая кодировка">UTF-8</span>
+                <span id="cursorPosition">Стр 1, Кол 1</span>
+                <span id="charCount">0 симв.</span>
+                <span id="changeCount" hidden></span>
+            </div>
         </div>
-        
-        <div style="flex:1;"></div>
-    </div>
-
-    <!-- Панель поиска -->
-    <div class="search-panel" id="searchPanel">
-        <input type="text" id="searchInput" class="search-input" placeholder="Найти..." autocomplete="off">
-        <input type="text" id="replaceInput" class="search-input" placeholder="Заменить на...">
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <button class="btn" id="findBtn" style="padding:6px 14px;"><i>🔍</i> Найти далее</button>
-            <button class="btn" id="replaceBtn" style="padding:6px 14px;"><i>↪️</i> Заменить</button>
-            <button class="btn" id="replaceAllBtn" style="padding:6px 14px;"><i>🔄</i> Заменить всё</button>
-            <label class="checkbox-label">
-                <input type="checkbox" id="caseSensitiveCheck"> <span>С уч. регистра</span>
-            </label>
+        <div class="tools">
+            <div class="group">
+                <button class="btn" id="openBtn" type="button" title="Открыть файл" aria-label="Открыть файл">
+                    <svg class="i"><use href="#i-open"/></svg><span class="label">Открыть</span>
+                </button>
+                <input type="file" id="fileInput" accept="*/*" class="hidden-input">
+                <button class="btn" id="newFileBtn" type="button" title="Новый файл" aria-label="Новый файл">
+                    <svg class="i"><use href="#i-new"/></svg><span class="label">Новый</span>
+                </button>
+                <button class="btn" id="toggleSearchBtn" type="button" title="Поиск и замена (Ctrl+F)" aria-label="Поиск и замена" aria-pressed="false">
+                    <svg class="i"><use href="#i-search"/></svg><span class="label">Поиск</span>
+                </button>
+                <button class="btn" id="toggleEncodingBtn" type="button" title="Кодировка" aria-label="Кодировка" aria-pressed="false">
+                    <svg class="i"><use href="#i-text"/></svg><span class="label">Кодировка</span>
+                </button>
+            </div>
+            <button class="btn btn-primary" id="saveBtn" type="button" title="Сохранить (Ctrl+S)" aria-label="Сохранить">
+                <svg class="i"><use href="#i-save"/></svg><span class="label">Сохранить</span>
+            </button>
         </div>
     </div>
 
-    <!-- Панель кодировок -->
-    <div class="encoding-panel" id="encodingPanel">
-        <div class="encoding-selector">
-            <label>📖 Читать:</label>
+    <div class="panel" id="searchPanel">
+        <input type="text" id="searchInput" class="field" placeholder="Найти" autocomplete="off">
+        <input type="text" id="replaceInput" class="field" placeholder="Заменить на">
+        <div class="actions">
+            <button class="btn" id="findBtn" type="button"><span class="label">Найти далее</span></button>
+            <button class="btn" id="replaceBtn" type="button"><span class="label">Заменить</span></button>
+            <button class="btn" id="replaceAllBtn" type="button"><span class="label">Заменить всё</span></button>
+            <label class="chip"><input type="checkbox" id="caseSensitiveCheck"> С учётом регистра</label>
+        </div>
+    </div>
+
+    <div class="panel" id="encodingPanel">
+        <label class="pick">Читать как
             <select id="encodingSelect">
                 <option value="auto">Авто</option>
                 <option value="utf-8">UTF-8</option>
@@ -387,9 +364,8 @@
                 <option value="utf-16le">UTF-16 LE</option>
                 <option value="utf-16be">UTF-16 BE</option>
             </select>
-        </div>
-        <div class="encoding-selector">
-            <label>💾 Сохранить:</label>
+        </label>
+        <label class="pick">Сохранять в
             <select id="saveEncodingSelect">
                 <option value="utf-8" selected>UTF-8</option>
                 <option value="windows-1251">Windows-1251</option>
@@ -399,18 +375,138 @@
                 <option value="utf-16le">UTF-16 LE</option>
                 <option value="utf-16be">UTF-16 BE</option>
             </select>
-        </div>
-        <span style="margin-left:auto; font-size:0.85rem; color:#57606a;" id="encodingHint"></span>
+        </label>
+        <span class="hint" id="encodingHint"></span>
     </div>
 
-    <!-- Редактор (без номеров строк) -->
     <div class="editor-container">
         <div class="editor-wrapper">
-            <textarea id="editor" placeholder="Откройте файл или начните вводить текст..." spellcheck="false"></textarea>
+            <textarea id="editor" placeholder="Откройте файл или начните печатать…" spellcheck="false"></textarea>
         </div>
     </div>
 </div>
 
+<script>
+    // Подсветка несохранённых правок: сравнение с последней сохранённой версией
+    (function () {
+        var $ = function (id) { return document.getElementById(id); };
+        var ed = $('editor'), wrap = ed.parentNode, st = $('dirtyState'), cnt = $('changeCount'), cc = $('charCount');
+        var base = '', forced = false, flashing = false, tUpd, tFlash, MAX_LINES = 5000;
+
+        var marks = document.createElement('div'), inner = document.createElement('div'), mirror = document.createElement('div');
+        marks.className = 'marks'; marks.appendChild(inner);
+        mirror.className = 'mirror'; mirror.setAttribute('aria-hidden', 'true');
+        wrap.insertBefore(marks, ed); wrap.appendChild(mirror);
+
+        // Построчное сравнение: общие начало и конец отрезаем, середину сверяем по LCS
+        function diff(a, b) {
+            var s = 0, ea = a.length, eb = b.length, ch = new Set(), del = new Set(), nd = 0;
+            while (s < ea && s < eb && a[s] === b[s]) s++;
+            while (ea > s && eb > s && a[ea - 1] === b[eb - 1]) { ea--; eb--; }
+            var A = a.slice(s, ea), B = b.slice(s, eb), n = A.length, m = B.length, i, j;
+            if (n * m > 2.5e6) {
+                for (j = 0; j < m; j++) ch.add(s + j);
+                return { ch: ch, del: del, nd: n };
+            }
+            var w = m + 1, L = new Int32Array((n + 1) * w);
+            for (i = n - 1; i >= 0; i--) for (j = m - 1; j >= 0; j--)
+                L[i * w + j] = A[i] === B[j] ? L[(i + 1) * w + j + 1] + 1 : Math.max(L[(i + 1) * w + j], L[i * w + j + 1]);
+            i = 0; j = 0;
+            while (i < n && j < m) {
+                if (A[i] === B[j]) { i++; j++; }
+                else if (L[(i + 1) * w + j] >= L[i * w + j + 1]) { del.add(s + j); nd++; i++; }
+                else { ch.add(s + j); j++; }
+            }
+            while (j < m) { ch.add(s + j); j++; }
+            if (i < n) { del.add(s + m); nd += n - i; }
+            return { ch: ch, del: del, nd: nd };
+        }
+
+        function setState(kind, text) {
+            st.hidden = !kind;
+            if (kind) { st.className = 'state ' + kind; st.textContent = text; }
+        }
+        function clearMarks() { inner.textContent = ''; cnt.hidden = true; }
+        function rect(cls, top, h) {
+            var r = document.createElement('div');
+            r.className = cls; r.style.top = top + 'px'; r.style.height = h + 'px';
+            return r;
+        }
+
+        function update() {
+            var cur = ed.value;
+            cc.textContent = cur.length.toLocaleString('ru-RU') + ' симв.';
+            var dirty = forced || cur !== base;
+            if (dirty) { flashing = false; setState('dirty', 'Не сохранено'); }
+            else if (!flashing) setState('');
+            if (cur === base) return clearMarks();
+            var b = cur.split('\n');
+            if (b.length > MAX_LINES) return clearMarks();
+
+            var d = diff(base.split('\n'), b);
+            // зеркало с теми же шрифтом и шириной даёт высоту каждой строки с учётом переноса
+            var frag = document.createDocumentFragment();
+            b.forEach(function (t) { var l = document.createElement('div'); l.textContent = t; frag.appendChild(l); });
+            mirror.textContent = '';
+            mirror.style.width = ed.clientWidth + 'px';
+            mirror.appendChild(frag);
+
+            var k = mirror.children, out = document.createDocumentFragment();
+            var idx = Array.from(d.ch).sort(function (x, y) { return x - y; });
+            for (var i = 0; i < idx.length;) {
+                var j = i;
+                while (j + 1 < idx.length && idx[j + 1] === idx[j] + 1) j++;
+                var top = k[idx[i]].offsetTop, bot = k[idx[j]].offsetTop + k[idx[j]].offsetHeight;
+                out.appendChild(rect('chg', top, bot - top));
+                i = j + 1;
+            }
+            d.del.forEach(function (p) {
+                if (d.ch.has(p)) return; // заменённая строка уже подсвечена
+                var y = p < k.length ? k[p].offsetTop : k[k.length - 1].offsetTop + k[k.length - 1].offsetHeight;
+                out.appendChild(rect('delmark', y - 1, 2));
+            });
+            inner.textContent = '';
+            inner.appendChild(out);
+            inner.style.transform = 'translateY(' + (-ed.scrollTop) + 'px)';
+
+            var n = Math.max(d.ch.size, d.nd);
+            cnt.textContent = 'Изменено строк: ' + n;
+            cnt.hidden = n === 0;
+        }
+
+        function schedule() { clearTimeout(tUpd); tUpd = setTimeout(update, 120); }
+
+        ed.addEventListener('input', schedule);
+        ed.addEventListener('scroll', function () { inner.style.transform = 'translateY(' + (-ed.scrollTop) + 'px)'; });
+        if (window.ResizeObserver) new ResizeObserver(schedule).observe(ed);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+
+        window.NP = {
+            reset:    function () { base = ed.value; forced = false; flashing = false; update(); },
+            restored: function () { base = ed.value; forced = true; update(); },
+            saved:    function () {
+                base = ed.value; forced = false; flashing = true;
+                setState('ok', 'Сохранено');
+                clearTimeout(tFlash); tFlash = setTimeout(function () { flashing = false; update(); }, 2500);
+                update();
+            },
+            touch: schedule,
+            _diff: diff
+        };
+        update();
+    })();
+
+    // Кнопка «Открыть» и состояние переключателей панелей
+    (function () {
+        var fileInput = document.getElementById('fileInput');
+        document.getElementById('openBtn').addEventListener('click', function () { fileInput.click(); });
+        [['toggleSearchBtn', 'searchPanel'], ['toggleEncodingBtn', 'encodingPanel']].forEach(function (p) {
+            var btn = document.getElementById(p[0]), panel = document.getElementById(p[1]);
+            var sync = function () { btn.setAttribute('aria-pressed', panel.classList.contains('show')); };
+            new MutationObserver(sync).observe(panel, { attributes: true, attributeFilter: ['class'] });
+        });
+    })();
+</script>
 <script>
     (function(){
         "use strict";
@@ -473,10 +569,10 @@
                 usedEncoding = 'utf-8';
                 text = decodeBufferWithEncoding(buffer, 'utf-8') || '';
             }
-            editor.value = text;
+            editor.value = text; window.NP && NP.reset();
             originalEncodingUsed = usedEncoding;
-            encodingStatus.textContent = `📌 ${usedEncoding.toUpperCase()}`;
-            encodingHint.textContent = `📖 чтение: ${usedEncoding}`;
+            encodingStatus.textContent = `${usedEncoding.toUpperCase()}`;
+            encodingHint.textContent = `чтение: ${usedEncoding}`;
             if (encodingSelect.value !== usedEncoding && encodingSelect.value !== 'auto') {
                 if ([...encodingSelect.options].some(opt => opt.value === usedEncoding))
                     encodingSelect.value = usedEncoding;
@@ -486,7 +582,7 @@
         function handleFile(file) {
             if (!file) return;
             currentFileName = file.name;
-            currentFileNameSpan.textContent = `📄 ${file.name.substring(0,25)}${file.name.length>25?'…':''}`;
+            currentFileNameSpan.textContent = `${file.name.substring(0,25)}${file.name.length>25?'…':''}`;
             currentFileNameSpan.title = file.name;
             const reader = new FileReader();
             reader.onload = e => {
@@ -507,13 +603,13 @@
 
         // ----- НОВЫЙ ФАЙЛ (сброс) -----
         function newFile() {
-            editor.value = '';
+            editor.value = ''; window.NP && NP.reset();
             currentFileBuffer = null;
             currentFileName = '';
-            currentFileNameSpan.textContent = '📄 не выбран';
+            currentFileNameSpan.textContent = 'Без названия';
             currentFileNameSpan.title = '';
-            encodingStatus.textContent = '📌 UTF-8';
-            encodingHint.textContent = '📖 готов';
+            encodingStatus.textContent = 'UTF-8';
+            encodingHint.textContent = 'готов';
             originalEncodingUsed = 'utf-8';
             encodingSelect.value = 'auto';
             saveEncodingSelect.value = 'utf-8';
@@ -570,7 +666,8 @@
             a.download = finalName;
             a.click();
             URL.revokeObjectURL(url);
-            encodingStatus.textContent = `📌 ${encoding.toUpperCase()} (сохр.)`;
+            window.NP && NP.saved();
+            encodingStatus.textContent = `${encoding.toUpperCase()} (сохр.)`;
         }
 
         saveBtn.addEventListener('click', doSave);
@@ -612,7 +709,7 @@
             const caseSensitive = caseSensitiveCheck.checked;
             const match = caseSensitive ? selection === searchStr : selection.toLowerCase() === searchStr.toLowerCase();
             if (match) {
-                editor.setRangeText(replaceInput.value, editor.selectionStart, editor.selectionEnd, 'end');
+                editor.setRangeText(replaceInput.value, editor.selectionStart, editor.selectionEnd, 'end'); window.NP && NP.touch();
             }
             findNext(true);
         });
@@ -625,7 +722,7 @@
             const flags = caseSensitive ? 'g' : 'gi';
             const escaped = searchStr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(escaped, flags);
-            editor.value = editor.value.replace(regex, replaceStr);
+            editor.value = editor.value.replace(regex, replaceStr); window.NP && NP.touch();
         });
 
         // ----- позиция курсора -----
@@ -691,8 +788,8 @@
             try {
                 const draft = localStorage.getItem(DRAFT_KEY);
                 if (draft) {
-                    editor.value = draft;
-                    currentFileNameSpan.textContent = '💾 черновик';
+                    editor.value = draft; window.NP && NP.restored();
+                    currentFileNameSpan.textContent = 'Черновик';
                     currentFileNameSpan.title = 'Локальный черновик (автосохранение)';
                 }
             } catch (e) {}
@@ -731,8 +828,8 @@
         }
 
         // Инициализация
-        encodingStatus.textContent = '📌 UTF-8';
-        encodingHint.textContent = '📖 готов';
+        encodingStatus.textContent = 'UTF-8';
+        encodingHint.textContent = 'готов';
         restoreDraft();
         updateCursorPos();
     })();
